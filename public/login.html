@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 min-h-screen flex items-center justify-center">
+    <div class="w-screen min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
+        <div class="relative py-3 sm:max-w-xs sm:mx-auto">
+            <div class="min-h-96 px-8 py-6 mt-4 text-left bg-gray-200 dark:bg-gray-800 rounded-xl shadow-lg">
+                <div class="flex flex-col justify-center items-center h-full select-none">
+                    <div class="flex flex-col items-center justify-center gap-2 mb-8">
+                        <a href="https://amethgalarcio.web.app/" target="_blank">
+                            <img src="https://amethgalarcio.web.app/assets/logo-42fde28c.svg" class="w-8" />
+                        </a>
+                        <p class="m-0 text-[16px] font-semibold text-gray-900 dark:text-gray-100">Login to your Account</p>
+                        <span class="m-0 text-xs max-w-[90%] text-center text-gray-600 dark:text-gray-400">
+                            Get started with our app, just start section and enjoy the experience.
+                        </span>
+                    </div>
+                    <div class="w-full flex flex-col gap-2">
+                        <label class="font-semibold text-xs text-gray-600 dark:text-gray-400">Username</label>
+                        <input id="username" class="border rounded-lg px-3 py-2 mb-5 text-sm w-full text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-700 outline-none border-gray-300 dark:border-gray-600" placeholder="Username" />
+                    </div>
+                </div>
+                <div class="w-full flex flex-col gap-2">
+                    <label class="font-semibold text-xs text-gray-600 dark:text-gray-400">Password</label>
+                    <input id="password" type="password" class="border rounded-lg px-3 py-2 mb-5 text-sm w-full text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-700 outline-none border-gray-300 dark:border-gray-600" placeholder="••••••••" />
+                </div>
+                <div class="mt-5">
+                    <button onclick="login()" class="py-1 px-8 bg-blue-500 hover:bg-blue-800 focus:ring-offset-blue-200 text-white w-full transition ease-in duration-200 text-center text-base font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-lg cursor-pointer select-none">
+                        Login
+                    </button>
+                </div>
+                <div id="error-message" class="text-red-500 mt-4 text-sm hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Attach keydown event to the document to trigger login on Enter key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Enter") {
+                login();  // Call login function on Enter key press
+            }
+        });
+
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMessageElement = document.getElementById('error-message');
+    
+            // Clear any previous error messages
+            errorMessageElement.classList.add('hidden');
+            errorMessageElement.innerHTML = '';
+    
+            try {
+                // Send a POST request to the login endpoint
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id: username, password: password })
+                });
+    
+                // Check if the response is OK (status 200-299)
+                if (!response.ok) {
+                    throw new Error('Login failed. Please check your credentials and try again.');
+                }
+    
+                const data = await response.json();
+    
+                // If login is successful, store the token and redirect to index.html
+                if (data.success) {
+                    localStorage.setItem('spectrumToken', data.token);
+                    // Add a small delay before redirecting
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 100);  
+                } else {
+                    // Display the error message returned by the server
+                    errorMessageElement.innerHTML = data.error;
+                    errorMessageElement.classList.remove('hidden');
+                }
+            } catch (error) {
+                // Handle network errors or other fetch-related issues
+                errorMessageElement.innerHTML = 'An error occurred. Please check your internet connection and try again.';
+                errorMessageElement.classList.remove('hidden');
+            }
+        }
+    </script>
+
+</body>
+</html>
+
